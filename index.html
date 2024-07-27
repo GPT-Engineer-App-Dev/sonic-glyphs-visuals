@@ -5,12 +5,119 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GPT Engineer</title>
+  <title>Cool Soundboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    .container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #ffffff;
+      margin-bottom: 2rem;
+    }
+    .soundboard {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .sound-button {
+      background-color: #4a5568;
+      color: #ffffff;
+      border: none;
+      padding: 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sound-button:hover {
+      background-color: #2d3748;
+    }
+    .sound-button.playing {
+      transform: scale(0.95);
+    }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.7);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+    }
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  Your blank canvas
-  <!-- insert your changes here -->
+  <div class="container">
+    <h1>Cool Soundboard</h1>
+    <div class="soundboard">
+      <button class="sound-button" data-sound="drum">Drum</button>
+      <button class="sound-button" data-sound="guitar">Guitar</button>
+      <button class="sound-button" data-sound="piano">Piano</button>
+      <button class="sound-button" data-sound="synth">Synth</button>
+    </div>
+  </div>
+
+  <audio id="drum" src="https://assets.mixkit.co/sfx/preview/mixkit-drum-and-percussion-545.mp3"></audio>
+  <audio id="guitar" src="https://assets.mixkit.co/sfx/preview/mixkit-electric-guitar-distorted-slide-2340.mp3"></audio>
+  <audio id="piano" src="https://assets.mixkit.co/sfx/preview/mixkit-piano-quick-tone-2645.mp3"></audio>
+  <audio id="synth" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.mp3"></audio>
+
+  <script>
+    const buttons = document.querySelectorAll('.sound-button');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const sound = button.getAttribute('data-sound');
+        const audio = document.getElementById(sound);
+        audio.currentTime = 0;
+        audio.play();
+        
+        button.classList.add('playing');
+        createRipple(button);
+        
+        setTimeout(() => {
+          button.classList.remove('playing');
+        }, 200);
+      });
+    });
+
+    function createRipple(button) {
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      button.appendChild(ripple);
+      
+      const size = Math.max(button.clientWidth, button.clientHeight);
+      const rect = button.getBoundingClientRect();
+      
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
+      ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
+      
+      ripple.addEventListener('animationend', () => {
+        ripple.remove();
+      });
+    }
+  </script>
 </body>
 
 </html>
