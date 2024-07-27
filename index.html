@@ -9,114 +9,193 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #1a1a1a;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden;
+      color: #fff;
     }
     .container {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.1);
+      background: #2a2a2a;
       padding: 2rem;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     h1 {
-      color: #ffffff;
+      text-align: center;
       margin-bottom: 2rem;
     }
-    .soundboard {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+    .dj-controller {
+      display: flex;
+      gap: 2rem;
+    }
+    .deck {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       gap: 1rem;
     }
-    .sound-button {
-      background-color: #4a5568;
-      color: #ffffff;
+    .platter {
+      width: 200px;
+      height: 200px;
+      background: #3a3a3a;
+      border-radius: 50%;
+      border: 10px solid #4a4a4a;
+    }
+    .controls, .effects {
+      display: flex;
+      gap: 1rem;
+    }
+    .play-pause, .effect {
+      background: #4a4a4a;
+      color: #fff;
       border: none;
-      padding: 1rem;
-      font-size: 1rem;
+      padding: 0.5rem 1rem;
       cursor: pointer;
       border-radius: 5px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
     }
-    .sound-button:hover {
-      background-color: #2d3748;
+    .play-pause:hover, .effect:hover {
+      background: #5a5a5a;
     }
-    .sound-button.playing {
-      transform: scale(0.95);
+    .volume, .crossfader {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      background: #4a4a4a;
+      outline: none;
+      opacity: 0.7;
+      transition: opacity .2s;
     }
-    .ripple {
-      position: absolute;
+    .volume:hover, .crossfader:hover {
+      opacity: 1;
+    }
+    .volume::-webkit-slider-thumb, .crossfader::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background: #fff;
+      cursor: pointer;
       border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.7);
-      transform: scale(0);
-      animation: ripple 0.6s linear;
     }
-    @keyframes ripple {
-      to {
-        transform: scale(4);
-        opacity: 0;
-      }
+    .mixer {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .crossfader {
+      transform: rotate(-90deg);
+      width: 200px;
+      margin-top: 100px;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>Cool Soundboard</h1>
-    <div class="soundboard">
-      <button class="sound-button" data-sound="drum">Drum</button>
-      <button class="sound-button" data-sound="guitar">Guitar</button>
-      <button class="sound-button" data-sound="piano">Piano</button>
-      <button class="sound-button" data-sound="synth">Synth</button>
+    <h1>DJ Controller</h1>
+    <div class="dj-controller">
+      <div class="deck deck-left">
+        <div class="platter"></div>
+        <div class="controls">
+          <button class="play-pause" data-deck="left">Play/Pause</button>
+          <input type="range" class="volume" data-deck="left" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div class="effects">
+          <button class="effect" data-effect="lowpass" data-deck="left">Low Pass</button>
+          <button class="effect" data-effect="highpass" data-deck="left">High Pass</button>
+        </div>
+      </div>
+      <div class="mixer">
+        <input type="range" class="crossfader" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div class="deck deck-right">
+        <div class="platter"></div>
+        <div class="controls">
+          <button class="play-pause" data-deck="right">Play/Pause</button>
+          <input type="range" class="volume" data-deck="right" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div class="effects">
+          <button class="effect" data-effect="lowpass" data-deck="right">Low Pass</button>
+          <button class="effect" data-effect="highpass" data-deck="right">High Pass</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <audio id="drum" src="https://assets.mixkit.co/sfx/preview/mixkit-drum-and-percussion-545.mp3"></audio>
-  <audio id="guitar" src="https://assets.mixkit.co/sfx/preview/mixkit-electric-guitar-distorted-slide-2340.mp3"></audio>
-  <audio id="piano" src="https://assets.mixkit.co/sfx/preview/mixkit-piano-quick-tone-2645.mp3"></audio>
-  <audio id="synth" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.mp3"></audio>
+  <audio id="left-deck" src="https://assets.mixkit.co/sfx/preview/mixkit-drum-and-percussion-545.mp3" loop></audio>
+  <audio id="right-deck" src="https://assets.mixkit.co/sfx/preview/mixkit-electric-guitar-distorted-slide-2340.mp3" loop></audio>
 
   <script>
-    const buttons = document.querySelectorAll('.sound-button');
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        const sound = button.getAttribute('data-sound');
-        const audio = document.getElementById(sound);
-        audio.currentTime = 0;
-        audio.play();
-        
-        button.classList.add('playing');
-        createRipple(button);
-        
-        setTimeout(() => {
-          button.classList.remove('playing');
-        }, 200);
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const leftDeck = document.getElementById('left-deck');
+    const rightDeck = document.getElementById('right-deck');
+    const crossfader = document.querySelector('.crossfader');
+    const volumes = document.querySelectorAll('.volume');
+    const playPauseButtons = document.querySelectorAll('.play-pause');
+    const effectButtons = document.querySelectorAll('.effect');
+
+    const leftSource = audioContext.createMediaElementSource(leftDeck);
+    const rightSource = audioContext.createMediaElementSource(rightDeck);
+    const leftGain = audioContext.createGain();
+    const rightGain = audioContext.createGain();
+    const leftFilter = audioContext.createBiquadFilter();
+    const rightFilter = audioContext.createBiquadFilter();
+
+    leftSource.connect(leftFilter).connect(leftGain).connect(audioContext.destination);
+    rightSource.connect(rightFilter).connect(rightGain).connect(audioContext.destination);
+
+    function updateCrossfade() {
+      const value = parseFloat(crossfader.value);
+      leftGain.gain.setValueAtTime(1 - value, audioContext.currentTime);
+      rightGain.gain.setValueAtTime(value, audioContext.currentTime);
+    }
+
+    crossfader.addEventListener('input', updateCrossfade);
+
+    volumes.forEach(volume => {
+      volume.addEventListener('input', (e) => {
+        const deck = e.target.dataset.deck;
+        const gain = deck === 'left' ? leftGain : rightGain;
+        gain.gain.setValueAtTime(parseFloat(e.target.value), audioContext.currentTime);
       });
     });
 
-    function createRipple(button) {
-      const ripple = document.createElement('span');
-      ripple.classList.add('ripple');
-      button.appendChild(ripple);
-      
-      const size = Math.max(button.clientWidth, button.clientHeight);
-      const rect = button.getBoundingClientRect();
-      
-      ripple.style.width = ripple.style.height = `${size}px`;
-      ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
-      ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
-      
-      ripple.addEventListener('animationend', () => {
-        ripple.remove();
+    playPauseButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const deck = e.target.dataset.deck === 'left' ? leftDeck : rightDeck;
+        if (deck.paused) {
+          deck.play();
+          e.target.textContent = 'Pause';
+        } else {
+          deck.pause();
+          e.target.textContent = 'Play';
+        }
       });
-    }
+    });
+
+    effectButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const deck = e.target.dataset.deck;
+        const filter = deck === 'left' ? leftFilter : rightFilter;
+        const effect = e.target.dataset.effect;
+
+        if (filter.type === effect) {
+          filter.type = 'allpass';
+          e.target.style.background = '#4a4a4a';
+        } else {
+          filter.type = effect;
+          filter.frequency.setValueAtTime(1000, audioContext.currentTime);
+          filter.Q.setValueAtTime(1, audioContext.currentTime);
+          e.target.style.background = '#6a6a6a';
+        }
+      });
+    });
+
+    updateCrossfade();
   </script>
 </body>
 
